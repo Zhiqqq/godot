@@ -87,13 +87,15 @@ void RendererSceneCull::camera_set_perspective(RID p_camera, float p_fovy_degree
 	camera->zfar = p_z_far;
 }
 
-void RendererSceneCull::camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far) {
+void RendererSceneCull::camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far, bool p_anti_foreshorten_enabled, float p_anti_foreshorten_factor) {
 	Camera *camera = camera_owner.get_or_null(p_camera);
 	ERR_FAIL_NULL(camera);
 	camera->type = Camera::ORTHOGONAL;
 	camera->size = p_size;
 	camera->znear = p_z_near;
 	camera->zfar = p_z_far;
+	camera->anti_foreshorten_enabled = p_anti_foreshorten_enabled;
+	camera->anti_foreshorten_factor = p_anti_foreshorten_factor;
 }
 
 void RendererSceneCull::camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) {
@@ -2632,6 +2634,9 @@ void RendererSceneCull::render_camera(const Ref<RenderSceneBuffers> &p_render_bu
 						camera->znear,
 						camera->zfar,
 						camera->vaspect);
+				if (camera->anti_foreshorten_enabled) {
+					projection.columns[1][1] *= camera->anti_foreshorten_factor;
+				}
 				is_orthogonal = true;
 			} break;
 			case Camera::PERSPECTIVE: {

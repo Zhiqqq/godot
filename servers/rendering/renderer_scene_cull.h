@@ -83,6 +83,8 @@ public:
 		Vector2 offset;
 		uint32_t visible_layers;
 		bool vaspect;
+		bool anti_foreshorten_enabled;
+		float anti_foreshorten_factor;
 		RID env;
 		RID attributes;
 		RID compositor;
@@ -98,6 +100,8 @@ public:
 			size = 1.0;
 			offset = Vector2();
 			vaspect = false;
+			anti_foreshorten_enabled = false;
+			anti_foreshorten_factor = Math::SQRT2;
 		}
 	};
 
@@ -107,7 +111,7 @@ public:
 	virtual void camera_initialize(RID p_rid);
 
 	virtual void camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);
-	virtual void camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
+	virtual void camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far, bool p_anti_foreshorten_enabled, float p_anti_foreshorten_factor);
 	virtual void camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far);
 	virtual void camera_set_transform(RID p_camera, const Transform3D &p_transform);
 	virtual void camera_set_cull_mask(RID p_camera, uint32_t p_layers);

@@ -200,7 +200,7 @@ Vector<Ref<Texture2D>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh
 		xform = mesh_xform * xform;
 
 		RS::get_singleton()->camera_set_transform(camera, xform * Transform3D(Basis(), Vector3(0, 0, 3)));
-		RS::get_singleton()->camera_set_orthogonal(camera, m * 2, 0.01, 1000.0);
+		RS::get_singleton()->camera_set_orthogonal(camera, m * 2, 0.01, 1000.0, false, 1.0);
 
 		RS::get_singleton()->instance_set_transform(light_instance, xform * Transform3D().looking_at(Vector3(-2, -1, -1), Vector3(0, 1, 0)));
 		RS::get_singleton()->instance_set_transform(light_instance2, xform * Transform3D().looking_at(Vector3(+1, -1, -2), Vector3(0, 1, 0)));

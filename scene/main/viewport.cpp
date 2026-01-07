@@ -4561,7 +4561,7 @@ void Viewport::set_camera_3d_override_orthogonal(real_t p_size, real_t p_z_near,
 		camera_3d_override.z_far = p_z_far;
 		camera_3d_override.projection = Camera3DOverrideData::PROJECTION_ORTHOGONAL;
 
-		RenderingServer::get_singleton()->camera_set_orthogonal(camera_3d_override.rid, camera_3d_override.size, camera_3d_override.z_near, camera_3d_override.z_far);
+		RenderingServer::get_singleton()->camera_set_orthogonal(camera_3d_override.rid, camera_3d_override.size, camera_3d_override.z_near, camera_3d_override.z_far, false, 1.0);
 	}
 }
 

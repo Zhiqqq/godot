@@ -77,7 +77,7 @@ void Camera3D::fti_update_servers_property() {
 			} break;
 			case PROJECTION_ORTHOGONAL: {
 				if (size.interpolate(f) || _near.interpolate(f) || _far.interpolate(f)) {
-					RS::get_singleton()->camera_set_orthogonal(camera, size.interpolated(), _near.interpolated(), _far.interpolated());
+					RS::get_singleton()->camera_set_orthogonal(camera, size.interpolated(), _near.interpolated(), _far.interpolated(), anti_foreshorten_enabled, anti_foreshorten_factor);
 				}
 			} break;
 			case PROJECTION_FRUSTUM: {
@@ -316,7 +316,7 @@ void Camera3D::set_orthogonal(real_t p_size, real_t p_z_near, real_t p_z_far) {
 	mode = PROJECTION_ORTHOGONAL;
 	force_change = false;
 
-	RenderingServer::get_singleton()->camera_set_orthogonal(camera, size, _near, _far);
+	RenderingServer::get_singleton()->camera_set_orthogonal(camera, size, _near, _far, anti_foreshorten_enabled, anti_foreshorten_factor);
 	update_gizmos();
 }
 
@@ -613,6 +613,32 @@ Camera3D::DopplerTracking Camera3D::get_doppler_tracking() const {
 	return doppler_tracking;
 }
 
+void Camera3D::set_anti_foreshorten_enabled(bool p_enabled) {
+	if (anti_foreshorten_enabled == p_enabled) {
+		return;
+	}
+	anti_foreshorten_enabled = p_enabled;
+	_update_camera_mode();
+}
+
+bool Camera3D::is_anti_foreshorten_enabled() const {
+	return anti_foreshorten_enabled;
+}
+
+void Camera3D::set_anti_foreshorten_factor(real_t p_factor) {
+	if (anti_foreshorten_factor == p_factor) {
+		return;
+	}
+	anti_foreshorten_factor = p_factor;
+	if (anti_foreshorten_enabled) {
+		_update_camera_mode();
+	}
+}
+
+real_t Camera3D::get_anti_foreshorten_factor() const {
+	return anti_foreshorten_factor;
+}
+
 void Camera3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("project_ray_normal", "screen_point"), &Camera3D::project_ray_normal);
 	ClassDB::bind_method(D_METHOD("project_local_ray_normal", "screen_point"), &Camera3D::project_local_ray_normal);
@@ -657,6 +683,10 @@ void Camera3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_keep_aspect_mode"), &Camera3D::get_keep_aspect_mode);
 	ClassDB::bind_method(D_METHOD("set_doppler_tracking", "mode"), &Camera3D::set_doppler_tracking);
 	ClassDB::bind_method(D_METHOD("get_doppler_tracking"), &Camera3D::get_doppler_tracking);
+	ClassDB::bind_method(D_METHOD("set_anti_foreshorten_enabled", "enabled"), &Camera3D::set_anti_foreshorten_enabled);
+	ClassDB::bind_method(D_METHOD("is_anti_foreshorten_enabled"), &Camera3D::is_anti_foreshorten_enabled);
+	ClassDB::bind_method(D_METHOD("set_anti_foreshorten_factor", "factor"), &Camera3D::set_anti_foreshorten_factor);
+	ClassDB::bind_method(D_METHOD("get_anti_foreshorten_factor"), &Camera3D::get_anti_foreshorten_factor);
 	ClassDB::bind_method(D_METHOD("get_frustum"), &Camera3D::_get_frustum);
 	ClassDB::bind_method(D_METHOD("is_position_in_frustum", "world_point"), &Camera3D::is_position_in_frustum);
 	ClassDB::bind_method(D_METHOD("get_camera_rid"), &Camera3D::get_camera);
@@ -677,6 +707,8 @@ void Camera3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "h_offset", PROPERTY_HINT_NONE, "suffix:m"), "set_h_offset", "get_h_offset");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "v_offset", PROPERTY_HINT_NONE, "suffix:m"), "set_v_offset", "get_v_offset");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "doppler_tracking", PROPERTY_HINT_ENUM, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "anti_foreshorten_enabled"), "set_anti_foreshorten_enabled", "is_anti_foreshorten_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "anti_foreshorten_factor", PROPERTY_HINT_RANGE, "0.1,10,0.01"), "set_anti_foreshorten_factor", "get_anti_foreshorten_factor");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "projection", PROPERTY_HINT_ENUM, "Perspective,Orthogonal,Frustum"), "set_projection", "get_projection");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "current"), "set_current", "is_current");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "fov", PROPERTY_HINT_RANGE, "1,179,0.1,degrees"), "set_fov", "get_fov");
