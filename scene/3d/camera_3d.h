@@ -75,6 +75,9 @@ private:
 	real_t h_offset = 0.0;
 	KeepAspect keep_aspect = KEEP_HEIGHT;
 
+	bool anti_foreshorten_enabled = false;
+	real_t anti_foreshorten_factor = Math::SQRT2;
+
 	RID camera;
 	RID scenario_id;
 
@@ -205,6 +208,12 @@ public:
 	DopplerTracking get_doppler_tracking() const;
 
 	Vector3 get_doppler_tracked_velocity() const;
+
+	void set_anti_foreshorten_enabled(bool p_enabled);
+	bool is_anti_foreshorten_enabled() const;
+
+	void set_anti_foreshorten_factor(real_t p_factor);
+	real_t get_anti_foreshorten_factor() const;
 
 #ifndef PHYSICS_3D_DISABLED
 	RID get_pyramid_shape_rid();
