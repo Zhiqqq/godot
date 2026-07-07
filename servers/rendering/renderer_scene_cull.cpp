@@ -2208,8 +2208,21 @@ void RendererSceneCull::_light_instance_setup_directional_shadow(int p_shadow_in
 
 			camera_matrix.set_orthogonal(vp_he.y * 2.0, aspect, distances[(i == 0 || !overlap) ? i : i - 1], distances[i + 1], false);
 		} else {
-			real_t fov = p_cam_projection.get_fov(); //this is actually yfov, because set aspect tries to keep it
-			camera_matrix.set_perspective(fov, aspect, distances[(i == 0 || !overlap) ? i : i - 1], distances[i + 1], true);
+			// Rebuild the camera projection with this split's near/far while preserving the
+			// original near-plane window, including any off-axis offset (PROJECTION_FRUSTUM
+			// with frustum_offset). The previous get_fov()+set_perspective() rebuild produced
+			// a re-centered symmetric frustum, aiming cascades at the wrong region and
+			// causing shadow artifacts for offset cameras. For symmetric projections this
+			// reconstruction is element-for-element identical to the old code path.
+			real_t split_near = distances[(i == 0 || !overlap) ? i : i - 1];
+			real_t split_far = distances[i + 1];
+			real_t cam_near = p_cam_projection.get_z_near();
+			real_t half_w = cam_near / p_cam_projection.columns[0][0];
+			real_t half_h = cam_near / p_cam_projection.columns[1][1];
+			real_t off_x = p_cam_projection.columns[2][0] * half_w;
+			real_t off_y = p_cam_projection.columns[2][1] * half_h;
+			real_t s = split_near / cam_near;
+			camera_matrix.set_frustum((off_x - half_w) * s, (off_x + half_w) * s, (off_y - half_h) * s, (off_y + half_h) * s, split_near, split_far);
 		}
 
 		//obtain the frustum endpoints
